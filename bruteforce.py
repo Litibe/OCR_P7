@@ -4,7 +4,6 @@ import time
 
 def open_csv_and_extract(file):
     actions = {}
-    benefice = {}
     with open(file, 'r') as csvfile:
         csvfile_open = csv.reader(csvfile, delimiter=',', quotechar='|')
         i = 0
@@ -12,44 +11,52 @@ def open_csv_and_extract(file):
             if i == 0:
                 pass
             else:
-                calcul_benefice = round(float(row_csv[1]) * float(row_csv[2]) / 100, 2)
-                actions[row_csv[0]] = dict({row_csv[0] + "_cost": float(row_csv[1]),
-                                            row_csv[0] + "_evolution": float(row_csv[2]),
-                                            row_csv[0] + "_benefice": calcul_benefice})
-                benefice[calcul_benefice] = row_csv[0]
+                if float(row_csv[1]) <= float(0):
+                    pass
+                else:
+                    calcul_profit = round(float(row_csv[1]) * float(row_csv[2]) / 100, 2)
+                    if float(row_csv[1]) <= 0 or float(row_csv[2]) <= 0 :
+                        pass
+                    else:
+                        actions[row_csv[0]] = dict({row_csv[0] + "_cost": float(row_csv[1]),
+                                                    row_csv[0] + "_profit": calcul_profit,
+                                                    row_csv[0] + "_%profit": float(row_csv[2]),
+                                                    })
+
             i += 1
-    return actions, benefice
+    return actions
 
 
 def sort_action_by(actions, benefice):
     sorted_by_dollar = sorted(benefice.items(), key=lambda x: x[0], reverse=True)
     return sorted_by_dollar
 
+def bruteforce(actions):
+    action_name = [action for action, value in actions.items()]
+    print(action_name)
+    liste = []
+    i=1
+    for action in action_name:
+        print(action)
+        tempory_list = action_name
+        possibility = action
+        tempory_list = tempory_list[i:]
 
-def search_rentability(actions, benefice, sorted_by_dollar):
-    buy = 0
-    win = 0
-    action_to_buy = []
-    i = 0
-    for dollar, action_name in sorted_by_dollar:
-        action_cost = (actions.get(action_name)).get(action_name + "_cost")
-        if i < 0:
-            i += 1
-        else:
-            if buy + action_cost < 500 and dollar > 0 :
-                buy += action_cost
-                win += dollar
-                action_to_buy.append(action_name)
-
-    print(buy)
-    print(win)
-    print(action_to_buy)
+        liste.append(possibility)
+        for combinaison in tempory_list:
+            possibility += ", " + combinaison
+            liste.append(possibility)
+        i+=1
+    return liste
 
 
 if __name__ == "__main__":
     start_time = time.time()
-    actions, benefice = open_csv_and_extract('csv/dataset1_Python+P7.csv')
-    sorted_by_dollar = sort_action_by(actions, benefice)
-    search_rentability(actions, benefice, sorted_by_dollar)
-    print(actions.get('Share-VNQN'))
+    actions = open_csv_and_extract('csv/DEMO.csv')
+    liste = bruteforce(actions)
+    print(len(actions))
+    print(len(liste))
+    for element in liste :
+        print(element)
+
     print("--- %s seconds ---" % (time.time() - start_time))
