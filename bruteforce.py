@@ -27,53 +27,61 @@ def open_csv_and_extract(file):
     return actions
 
 
-def sort_action_by(actions, benefice):
-    sorted_by_dollar = sorted(benefice.items(), key=lambda x: x[0], reverse=True)
+def sort_action_by(benefice):
+    sorted_by_dollar = sorted(benefice.items(), key=lambda x: x[1], reverse=True)
     return sorted_by_dollar
 
 
-def bruteforce(actions):
-
-    action_name = [action for action, value in actions.items()]
+def bruteforce(liste):
+    action_name = [action for action, value in liste.items()]
     liste_of_possibility = []
-
-
-
-    for action in action_name :
+    for action in action_name:
         index_action = 0
         start_index = 0
         run = True
-        while run :
-            possibility = []
-            possibility.append(action)
+        while run:
+            possibility = [action]
             liste_of_possibility.append(list(possibility))
-            tempory_list = action_name[start_index:]
+            tempory_list = action_name[:]
             while len(tempory_list) > 0:
                 for element in tempory_list:
                     if element == action :
                         pass
                     else :
                         possibility.append(element)
-                        if sorted(list(possibility)) in liste_of_possibility :
+                        if sorted(list(possibility)) in liste_of_possibility:
                             pass
-                        else :
-                            liste_of_possibility.append(list(possibility))
-
-                possibility = []
-                possibility.append(action)
+                        else:
+                            liste_of_possibility.append(
+                                sorted(list(possibility)))
+                possibility = [action]
                 tempory_list.pop(0)
                 run = False
-
-    for liste in liste_of_possibility :
-        #print("liste :")
-        print(liste)
     return liste_of_possibility
+
+
+def search_max_benefice(actions, liste_of_possibility):
+    dict_of_benefice = {}
+    for possibility in liste_of_possibility :
+        benefice = float(0)
+        for action in possibility :
+            my_action = actions.get(action, "error")
+            profit = float(my_action.get(action+"_profit", ""))
+            benefice += profit
+        dict_of_benefice[str(possibility)] = benefice
+
+    sorted_by_dollar =  sort_action_by(dict_of_benefice)
+    return sorted_by_dollar
+
 
 if __name__ == "__main__":
     start_time = time.time()
     actions = open_csv_and_extract('csv/demo2.csv')
-    liste = bruteforce(actions)
-
-    print(len(liste))
+    liste_of_possibility = bruteforce(actions)
+    #for liste in sorted(liste_of_possibility):
+        #print(liste)
+    print(len(liste_of_possibility))
+    resultat = search_max_benefice(actions, liste_of_possibility)
+    print(resultat[0])
 
     print("--- %s seconds ---" % (time.time() - start_time))
