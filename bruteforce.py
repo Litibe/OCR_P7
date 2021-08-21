@@ -36,32 +36,42 @@ def bruteforce(actions):
 
     action_name = [action for action, value in actions.items()]
     liste_of_possibility = []
-    possibility = []
-    index_action = 0
-    start_index = 1
-    run = True
 
-    while run :
-        possibility.append(action_name[index_action])
-        liste_of_possibility.append(list(possibility))
-        for element in action_name[start_index:]:
-            possibility.append(element)
-            #print(possibility)
+
+
+    for action in action_name :
+        index_action = 0
+        start_index = 0
+        run = True
+        while run :
+            possibility = []
+            possibility.append(action)
             liste_of_possibility.append(list(possibility))
+            tempory_list = action_name[start_index:]
+            while len(tempory_list) > 0:
+                for element in tempory_list:
+                    if element == action :
+                        pass
+                    else :
+                        possibility.append(element)
+                        if sorted(list(possibility)) in liste_of_possibility :
+                            pass
+                        else :
+                            liste_of_possibility.append(list(possibility))
 
-        possibility = []
-        index_action += 1
-        start_index += 1
-        if index_action == len(action_name):
-            run = False
+                possibility = []
+                possibility.append(action)
+                tempory_list.pop(0)
+                run = False
 
     for liste in liste_of_possibility :
+        #print("liste :")
         print(liste)
     return liste_of_possibility
 
 if __name__ == "__main__":
     start_time = time.time()
-    actions = open_csv_and_extract('csv/demo.csv')
+    actions = open_csv_and_extract('csv/demo2.csv')
     liste = bruteforce(actions)
 
     print(len(liste))
