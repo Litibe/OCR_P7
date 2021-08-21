@@ -33,36 +33,37 @@ def sort_action_by(actions, benefice):
 
 
 def bruteforce(actions):
+
     action_name = [action for action, value in actions.items()]
-    print(action_name)
     liste_of_possibility = []
     possibility = []
     index_action = 0
     start_index = 1
-    for action in action_name[:1]:
-        print(action)
-        possibility.append(action)
-        liste_of_possibility.append(possibility)
-        run = True
-        while run :
-            tempory_list = action_name[start_index:]
-            possibility.append(action_name[index_action])
-            for element in tempory_list:
-                possibility.append(element)
-                liste_of_possibility.append(possibility)
-            start_index +=1
-            possibility = []
-            if start_index > len(tempory_list):
-                run = False
+    run = True
 
-    for element in liste_of_possibility :
-        print(element)
+    while run :
+        possibility.append(action_name[index_action])
+        liste_of_possibility.append(list(possibility))
+        for element in action_name[start_index:]:
+            possibility.append(element)
+            #print(possibility)
+            liste_of_possibility.append(list(possibility))
+
+        possibility = []
+        index_action += 1
+        start_index += 1
+        if index_action == len(action_name):
+            run = False
+
+    for liste in liste_of_possibility :
+        print(liste)
+    return liste_of_possibility
 
 if __name__ == "__main__":
     start_time = time.time()
-    actions = open_csv_and_extract('csv/DEMO.csv')
+    actions = open_csv_and_extract('csv/demo.csv')
     liste = bruteforce(actions)
-    print(len(actions))
-    #print(len(liste))
+
+    print(len(liste))
 
     print("--- %s seconds ---" % (time.time() - start_time))
