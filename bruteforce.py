@@ -30,11 +30,9 @@ def search(actions, my_result):
 def brutef(actions, longueur):
     combinaison = []
     if longueur == 1 :
-        for action in actions:
-            combinaison.append([action])
+        combinaison = [[action] for action in actions]
     else:
-        for action in actions :
-            combinaison.append([action])
+        combinaison = [[action] for action in actions]
         for possibility in combinaison:
             for action in actions:
                 if action not in possibility:
@@ -50,7 +48,7 @@ def brutef(actions, longueur):
 if __name__ == "__main__":
     start_time = time.time()
     actions = open_csv_and_extract('csv/demo.csv')
-    longueur = 4
+    longueur = 3
     actions_name = [action[0] for action in actions]
     my_result = brutef(actions_name, longueur)
     print(len(my_result), "resultats de combinaison unique pour une longueur max de ", longueur, "elements")
