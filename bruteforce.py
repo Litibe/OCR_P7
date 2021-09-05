@@ -50,10 +50,10 @@ def brutef(actions, longueur):
 if __name__ == "__main__":
     start_time = time.time()
     actions = open_csv_and_extract('csv/demo.csv')
-    longueur = 5
+    longueur = 4
     actions_name = [action[0] for action in actions]
     my_result = brutef(actions_name, longueur)
-    print(len(my_result))
+    print(len(my_result), "resultats de combinaison unique pour une longueur max de ", longueur, "elements")
     #b = search(actions, my_result)
     #print(len(b))
     print("--- %s seconds ---" % (time.time() - start_time))
