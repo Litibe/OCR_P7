@@ -22,10 +22,11 @@ def open_csv_and_extract(file):
             i += 1
     return actions
 
-def search(actions, my_result):
-    for number in range(1, len(actions)+1):
-        my_result.extend([c for c in combinations(actions, number)])
+
+def search(actions, longueur):
+    my_result = [list(c) for c in combinations(actions, longueur)]
     return my_result
+
 
 def brutef(actions, longueur):
     combinaison = []
@@ -45,13 +46,43 @@ def brutef(actions, longueur):
     return combinaison
 
 
+def recurssive(actions, combinaison, longueur):
+    for possibility in combinaison:
+        for action in actions:
+            if action not in possibility:
+                if len(possibility) < longueur:
+                    element = possibility[:]
+                    element.append(action)
+                    element.sort()
+                    if element not in combinaison:
+                        combinaison.append((element))
+    return combinaison
+
+
+def filter_by_size(my_result):
+    actions_to_buy = []
+    max_benefice = 0
+    min_cost = 500
+    for a in my_result :
+        sum = 0
+        benefice=0
+        for element in a :
+            sum += float(element[1])
+            benefice += float(element[1])*float(element[2])/100
+        if sum < 500 and benefice>max_benefice:
+            max_benefice = benefice
+            min_cost = sum
+            actions_to_buy = a
+    return actions_to_buy, max_benefice, min_cost
+
+
 if __name__ == "__main__":
     start_time = time.time()
     actions = open_csv_and_extract('csv/demo.csv')
-    longueur = 5
+    longueur = 7
     actions_name = [action[0] for action in actions]
-    my_result = brutef(actions_name, longueur)
-    print(len(my_result), "resultats de combinaison unique pour une longueur max de ", longueur, "elements")
-    #b = search(actions, my_result)
-    #print(len(b))
+    my_result = brutef(actions, longueur)
+    print(len(my_result))
+    actions_to_buy, max_benefice, min_cost = filter_by_size(my_result)
+    print(actions_to_buy, "benefice : ", max_benefice, "cout :", min_cost)
     print("--- %s seconds ---" % (time.time() - start_time))
