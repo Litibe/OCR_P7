@@ -45,11 +45,27 @@ def construction_tableau(actions, budget):
             else :
                 tableau[number_action][monnaie] = float(tableau[number_action-1][monnaie])
 
-    for ligne in tableau :
-        print(ligne)
+    n_actions = len(actions)
+    action_to_buy = []
+    while budget >=0 and n_actions > 0 :
+        #on selectionne dernière action de la liste
+        action_to_compare = actions[n_actions-1]
+        # pour comparaison ci dessous
+        budget_moins_prix_action_precedente = tableau[n_actions-1][int(budget)-int(action_to_compare[1])]
+        benefecice_action_precedente = float(actions[n_actions-1][2])*float(actions[n_actions-1][1])/100
+
+        if tableau[n_actions][budget] == budget_moins_prix_action_precedente + benefecice_action_precedente :
+            action_to_buy.append(action_to_compare)
+            budget -= int(action_to_compare[1])
+        n_actions -= 1
+
+    return tableau[-1][-1], action_to_buy
+
 if __name__ == "__main__":
     start_time = time.time()
     actions = open_csv_and_extract('csv/demo.csv')
-    resultat = construction_tableau(actions, 500)
-
+    resultat, action_to_buy = construction_tableau(actions, 500)
+    print("Bénéfice max : ", resultat)
+    for action in action_to_buy :
+        print(action)
     print("--- %s seconds ---" % (time.time() - start_time))
