@@ -1,5 +1,6 @@
 import csv
 import time
+from itertools import combinations
 
 
 def open_csv_and_extract(file):
@@ -22,7 +23,7 @@ def open_csv_and_extract(file):
     return actions
 
 
-def brutef(actions, longueur):
+def bruteforce_infinity_time(actions, longueur):
     combinaison = []
     if longueur == 1:
         combinaison = [[action] for action in actions]
@@ -40,7 +41,13 @@ def brutef(actions, longueur):
     return combinaison
 
 
-def filter_by_size(actions, my_result):
+def bruteforce_with_intertool(actions, longueur):
+    my_result = [c for c in combinations(actions, longueur)]
+    if longueur > 0 :
+        my_result.extend(bruteforce_with_intertool(actions, longueur-1))
+    return my_result
+
+def filter_max_benefice(actions, my_result):
     actions_to_buy = []
     max_benefice = 0
     min_cost = 500
@@ -62,11 +69,12 @@ def filter_by_size(actions, my_result):
 
 if __name__ == "__main__":
     start_time = time.time()
-    actions = open_csv_and_extract('csv/demo.csv')
-    longueur = 4
+    actions = open_csv_and_extract('csv/data_20actions.csv')
+    longueur = len(actions)
     actions_name = [action[0] for action in actions]
-    my_result = brutef(actions_name, longueur)
-    print(len(my_result))
-    actions_to_buy, max_benefice, min_cost = filter_by_size(actions, my_result)
+    my_result = bruteforce_with_intertool(actions_name, longueur)
+    print("resultat brute force : ", len(my_result))
+    print("resultat 2^n avec n=" + str(longueur) + " : " + str(2**longueur))
+    actions_to_buy, max_benefice, min_cost = filter_max_benefice(actions, my_result)
     print(actions_to_buy, "benefice : ", max_benefice, "cout :", min_cost)
     print("--- %s seconds ---" % (time.time() - start_time))

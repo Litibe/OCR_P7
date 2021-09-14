@@ -24,48 +24,56 @@ def open_csv_and_extract(file):
 
 def construction_tableau(actions, budget):
     # tableau double
-    # abcisse avec recherche budget, première case 0 pour initialiser
+    # abscisse avec recherche budget, première case 0 pour initialiser
     # ordonnées liste des actions , première case 0 pour initialiser
     tableau = [[0 for x in range(budget + 1)] for x in range(len(actions) + 1)]
 
-#  on commence par index 1 et Non 0 pour faire comparation de l'action en cours avec action précédente
+    #  on commence par index 1 et Non 0 pour faire comparaison de l'action
+    #  en cours avec action précédente
     for number_action in range(1, len(actions) + 1):
         # extraction de l'index des actions pour search_actions
         for monnaie in range(1, budget + 1):
             # extraction de chaque euro issue du budget pour comparatif
             # (NAME_ACTION, cost, %profit)
             # si l'action en cours a un cout d'achat < au budget en cours
-            if int(actions[number_action-1][1]) <= int(monnaie):
-                tableau[number_action][monnaie] = max(
-                    float(actions[number_action-1][2]
-                          )*float(
+            if float(actions[number_action-1][1]) <= float(monnaie):
+                # calcul du benefice de l action depuis cout/%profit
+                tableau[number_action][int(monnaie)] = max(
+                    float(actions[number_action - 1][2]
+                          ) * float(
                         actions[number_action-1][1])/100 + float(
-                        tableau[number_action-1][int(monnaie)-int(actions[number_action-1][1])]), float(tableau[number_action-1][monnaie]))
-                #au dessus calcul du benefice de l action depuis cout/%profit
-            else :
-                tableau[number_action][monnaie] = float(tableau[number_action-1][monnaie])
+                        tableau[number_action-1][int(float(monnaie) - float(
+                            actions[number_action-1][1]))]), float(
+                        tableau[number_action-1][int(monnaie)]))
+            else:
+                tableau[number_action][int(monnaie)] = float(
+                    tableau[number_action-1][int(monnaie)])
 
     n_actions = len(actions)
     action_to_buy = []
-    while budget >=0 and n_actions > 0 :
-        #on selectionne dernière action de la liste
-        action_to_compare = actions[n_actions-1]
+    while budget >= 0 and n_actions > 0:
+        # on selectionne dernière action de la liste
+        action_to_compare = actions[n_actions - 1]
         # pour comparaison ci dessous
-        budget_moins_prix_action_precedente = tableau[n_actions-1][int(budget)-int(action_to_compare[1])]
-        benefecice_action_precedente = float(actions[n_actions-1][2])*float(actions[n_actions-1][1])/100
+        budget_after_buy_action = tableau[n_actions - 1][int(
+            float(budget) - float(action_to_compare[1]))]
+        win_previous_action = float(
+            actions[n_actions - 1][2]) * float(actions[n_actions - 1][1]) / 100
 
-        if tableau[n_actions][budget] == budget_moins_prix_action_precedente + benefecice_action_precedente :
+        if tableau[n_actions][
+            budget] == budget_after_buy_action + win_previous_action:
             action_to_buy.append(action_to_compare)
-            budget -= int(action_to_compare[1])
+            budget -= round(float(action_to_compare[1]))
         n_actions -= 1
 
     return tableau[-1][-1], action_to_buy
 
+
 if __name__ == "__main__":
     start_time = time.time()
-    actions = open_csv_and_extract('csv/demo.csv')
-    resultat, action_to_buy = construction_tableau(actions, 500)
+    actions = open_csv_and_extract('csv/dataset2_Python+P7.csv')
+    resultat, action_to_buy = construction_tableau(actions, budget=500)
     print("Bénéfice max : ", resultat)
-    for action in action_to_buy :
+    for action in action_to_buy:
         print(action)
     print("--- %s seconds ---" % (time.time() - start_time))
