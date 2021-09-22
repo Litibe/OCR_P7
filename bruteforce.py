@@ -9,16 +9,18 @@ def open_csv_and_extract(file):
         csvfile_open = csv.reader(csvfile, delimiter=',', quotechar='|')
         i = 0
         for row_csv in csvfile_open:
-            if i == 0:
-                pass
-            else:
-                if float(row_csv[1]) <= float(0):
-                    pass
-                else:
-                    if float(row_csv[1]) <= 0 or float(row_csv[2]) <= 0:
-                        pass
-                    else:
-                        actions.append((row_csv[0], row_csv[1], row_csv[2]))
+
+            if i != 0 and float(row_csv[1]) > float(0) and float(
+                    row_csv[2]) > float(0):
+                # conversion donnees *100 pour suppression virgule
+                # calcul beneficie en index 3
+                # ajout dans liste sous forme tuple
+                actions.append((row_csv[0],
+                                float(row_csv[1]),
+                                row_csv[2],
+                                round(
+                                    float(row_csv[1]) * float(
+                                        row_csv[2])/100, 2)))
             i += 1
     return actions
 
@@ -41,40 +43,38 @@ def bruteforce_infinity_time(actions, longueur):
     return combinaison
 
 
-def bruteforce_with_intertool(actions, longueur):
+def bruteforce_with_itertools(actions, longueur):
     my_result = [c for c in combinations(actions, longueur)]
     if longueur > 0 :
-        my_result.extend(bruteforce_with_intertool(actions, longueur-1))
+        my_result.extend(bruteforce_with_itertools(actions, longueur-1))
     return my_result
 
-def filter_max_benefice(actions, my_result):
+def filter_max_benefice(brute_force_results):
     actions_to_buy = []
     max_benefice = 0
-    min_cost = 500
-    for a in my_result:
-        sum = 0
+    max_cost = 500
+    for proposition_combinaison in brute_force_results:
+        sum_actions = 0
         benefice = 0
-        for element in a:
-            for action in actions:
-                if element == action[0]:
-                    element = action
-            sum += float(element[1])
-            benefice += float(element[1])*float(element[2])/100
-        if sum < 500 and benefice > max_benefice:
+        for action in proposition_combinaison:
+            sum_actions += action[1]
+            benefice += action[3]
+        if sum_actions < 500 and benefice > max_benefice:
             max_benefice = benefice
-            min_cost = sum
-            actions_to_buy = a
-    return actions_to_buy, max_benefice, min_cost
+            max_cost = sum_actions
+            actions_to_buy = proposition_combinaison
+    return actions_to_buy, max_benefice, max_cost
+
 
 
 if __name__ == "__main__":
     start_time = time.time()
     actions = open_csv_and_extract('csv/data_20actions.csv')
-    longueur = len(actions)
-    actions_name = [action[0] for action in actions]
-    my_result = bruteforce_with_intertool(actions_name, longueur)
+    my_result = bruteforce_with_itertools(actions, len(actions))
     print("resultat brute force : ", len(my_result))
-    print("resultat 2^n avec n=" + str(longueur) + " : " + str(2**longueur))
-    actions_to_buy, max_benefice, min_cost = filter_max_benefice(actions, my_result)
-    print(actions_to_buy, "benefice : ", max_benefice, "cout :", min_cost)
+    print("resultat 2^n avec n=" + str(len(actions)) + " : " + str(2**len(actions)))
+    actions_to_buy, max_benefice, min_cost = filter_max_benefice(my_result)
+    for action in actions_to_buy :
+        print(action)
+    print("benefice : ", max_benefice, "cout :", min_cost)
     print("--- %s seconds ---" % (time.time() - start_time))

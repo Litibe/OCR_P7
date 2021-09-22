@@ -49,7 +49,7 @@ def construction_tableau(actions, budget):
 
     n_actions = len(actions)
     action_to_buy = []
-    while budget >= 0 and n_actions > 0:
+    while budget > 0 and n_actions > 0:
         # on selectionne dernière action de la liste
         action_to_compare = actions[n_actions-1]
         # pour comparaison ci dessous
@@ -81,7 +81,7 @@ def main():
                 file = 'csv/data_20actions.csv'
             elif choice_file == 2:
                 file = 'csv/dataset1_Python+P7.csv'
-            elif choice_file == 2:
+            elif choice_file == 3:
                 file = 'csv/dataset2_Python+P7.csv'
             else:
                 print("Merci de faire un choix valide")
@@ -94,8 +94,12 @@ if __name__ == "__main__":
     file = main()
     start_time = time.time()
     actions = open_csv_and_extract(file)
-    resultat, action_to_buy = construction_tableau(actions, budget=500)
-    print("Bénéfice max : ", resultat)
-    for action in action_to_buy:
+    print("longueur actions exploitables : ", len(actions))
+    resultat, actions_to_buy = construction_tableau(actions, budget=499)
+    cost = 0
+    for action in actions_to_buy :
         print(action)
+        cost += action[1]
+    print("coût total : ", cost)
+    print("Bénéfice max : ", resultat)
     print("--- %s seconds ---" % (time.time() - start_time))
