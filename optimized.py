@@ -94,7 +94,6 @@ if __name__ == "__main__":
     file = main()
     start_time = time.time()
     actions = open_csv_and_extract(file)
-    print("longueur actions exploitables : ", len(actions))
     resultat, actions_to_buy = construction_tableau(actions, budget=499)
     cost = 0
     for action in actions_to_buy :
