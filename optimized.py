@@ -2,18 +2,19 @@ import csv
 import time
 
 
-def open_csv_and_extract(file):
+def open_csv_and_extract(file, min_win_per_action=0.5):
     actions = []
     with open(file, 'r') as csvfile:
         csvfile_open = csv.reader(csvfile, delimiter=',', quotechar='|')
         i = 0
         for row_csv in csvfile_open:
-
+            # suppressions des actions corrompues:
             if i != 0 and float(row_csv[1]) > float(0) and float(
-                    row_csv[2]) > float(0):
-                # conversion donnees *100 pour suppression virgule
+                    row_csv[2]) > float(0) and (float(row_csv[1]) * float(
+                                        row_csv[2])/100) > float(
+                                            min_win_per_action):
                 # calcul beneficie en index 3
-                # ajout dans liste sous forme tuple
+                # ajout dans liste sous forme tuple si ok
                 actions.append((row_csv[0],
                                 float(row_csv[1]),
                                 row_csv[2],
@@ -48,7 +49,7 @@ def construction_tableau(actions, budget):
                 array[n_action][round(monnaie)] = round(array[n_action-1][round(monnaie)],2)
 
     n_actions = len(actions)
-    action_to_buy = []
+    actions_to_buy = []
     while budget > 0 and n_actions > 0:
         # on selectionne dernière action de la liste
         action_to_compare = actions[n_actions-1]
@@ -58,47 +59,47 @@ def construction_tableau(actions, budget):
 
         if array[n_actions][
             round(budget)] == budget_after_buy_action + win_previous_action:
-            action_to_buy.append(action_to_compare)
+            actions_to_buy.append(action_to_compare)
             budget -= action_to_compare[1]
         n_actions -= 1
-
-    return array[-1][-1], action_to_buy
+    cost = sum([action[1] for action in actions_to_buy])
+    return array[-1][-1], sorted(actions_to_buy), cost
 
 
 def main():
     choice_file = 0
-    while choice_file not in [1,2,3] :
-        print("""
-        Poissibilité d'extraction : 
-        Choix 1 : demo.csv (20 actions)
+    while choice_file not in [1,2,3]:
+        print("""Poissibilité d'extraction : 
+        Choix 1 : data_20actions.csv
         Choix 2 : dataset1_Python+P7.csv
-        Choix 3 : dataset2_Python+P7.csv
-        """)
+        Choix 3 : dataset2_Python+P7.csv""")
         try:
             choice_file = int(input(
-                "Merci de saisir le choix de votre fichier :"))
+                "Merci de saisir le choix de votre fichier : "))
             if choice_file == 1:
-                file = 'csv/data_20actions.csv'
+                link_file = 'csv/data_20actions.csv'
             elif choice_file == 2:
-                file = 'csv/dataset1_Python+P7.csv'
+                link_file = 'csv/dataset1_Python+P7.csv'
             elif choice_file == 3:
-                file = 'csv/dataset2_Python+P7.csv'
+                link_file = 'csv/dataset2_Python+P7.csv'
             else:
                 print("Merci de faire un choix valide")
         except ValueError:
             print("Merci de faire un choix valide")
-    return file
+    return link_file
 
 
 if __name__ == "__main__":
-    file = main()
+    link_file = main()
     start_time = time.time()
-    actions = open_csv_and_extract(file)
-    resultat, actions_to_buy = construction_tableau(actions, budget=499)
-    cost = 0
+    print("Ouverture du fichier : ", link_file.split("/")[1])
+    actions = open_csv_and_extract(link_file)
+    max_benefice, actions_to_buy, min_cost = construction_tableau(
+        actions, budget=499)
+    print(f"\nPour un bénéfice de {max_benefice}€ "
+          f"et pour un coût d'achat de {min_cost}€, "
+          f"voici les actions à acheter :")
+    print("Action_Name, Cost, %_Profit, €_Profit")
     for action in actions_to_buy :
         print(action)
-        cost += action[1]
-    print("coût total : ", cost)
-    print("Bénéfice max : ", resultat)
     print("--- %s seconds ---" % (time.time() - start_time))
