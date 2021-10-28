@@ -56,6 +56,7 @@ if __name__ == "__main__":
     print(f"Pour un bénéfice de {max_benefice}€ "
           f"et pour un coût d'achat de {min_cost}€, "
           f"voici les actions à acheter :\n")
+    print("Action_Name, Cost, %_Profit, €_Profit")
     for action in actions_to_buy :
         print(action)
     print("--- %s seconds ---" % (time.time() - start_time))
